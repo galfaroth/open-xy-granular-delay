@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "id": "graindelay",
+  "name": "Granular Delay by Veff",
+  "parameters": [
+    {
+      "id": "time",
+      "label": "Time",
+      "default": 0.23,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 20,
+        "maximum": 1000
+      },
+      "display": "duration"
+    },
+    {
+      "id": "grain",
+      "label": "Grain",
+      "default": 0.35,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 5,
+        "maximum": 90
+      },
+      "display": "duration"
+    },
+    {
+      "id": "density",
+      "label": "Density",
+      "default": 0.875,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "feedback",
+      "label": "Feedback",
+      "default": 0.3,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 0.92
+      },
+      "display": "percent"
+    },
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "default": 0.5,
+      "mapping": {
+        "kind": "enum",
+        "labels": [
+          "-12",
+          "-7",
+          "0",
+          "+7",
+          "+12"
+        ]
+      },
+      "display": "enum"
+    },
+    {
+      "id": "spray",
+      "label": "Spray",
+      "default": 0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 100
+      },
+      "display": "duration"
+    },
+    {
+      "id": "damping",
+      "label": "Damping",
+      "default": 0,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    },
+    {
+      "id": "level",
+      "label": "Level",
+      "default": 1,
+      "mapping": {
+        "kind": "linear",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "display": "percent"
+    }
+  ],
+  "presets": {},
+  "resources": {
+    "bufferBytes": 524288
+  },
+  "press": "page"
+}
