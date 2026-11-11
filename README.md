@@ -36,6 +36,15 @@ SDK's 472-byte buffered-effect slot. Reset invalidates history without clearing
 the large buffer; unwritten reads return zero. No allocation, I/O or platform
 code is used in audio callbacks. Both sends have independent state and scratch.
 
+The processing is laid out for the Blackfin's cost model. History is stored as
+interleaved, half-scale stereo frames, so one address serves both channels and
+interpolation needs no overflow guard. Each block renders grain by grain over
+straight pieces of the triangular window, which is stepped incrementally. Pitch
+0 and +12 grains read whole frames with no interpolation. Damping, feedback and
+level then run once over the block. Divisions happen only when Time, Grain,
+Density or Spray change. Grains that would read before the reset point are
+skipped until their reads reach written history.
+
 Built against official SDK revision `7fd8fdf1757e11ab6fdca915b09f1773d7611a31`.
 From this repository, with the SDK checked out beside it:
 
@@ -47,7 +56,9 @@ python ../open-xy/sdk.py compile --machine . --machine ../open-xy-core-machines/
 The official SDK currently needs a synth in a native collection; the second
 machine is the public 2op FM baseline. Numerical tests cover poisoned/reset
 scratch, exact neutral delay, stereo isolation/balance, overlap gain through
-ring wrap, capped feedback decay, pitch extremes and missing scratch. Effects
+ring wrap, exact delay across the history end, steady click-free level at
+every pitch through the wrap, capped feedback decay, pitch extremes and missing
+scratch. Effects
 have no browser audition in this SDK. Host CPU estimates are not measured device
 CPU; listening and revision-bound hardware profiling remain pending. Do not
 install firmware from this source repository; use a separately verified build.

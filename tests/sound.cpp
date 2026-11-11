@@ -42,6 +42,37 @@ int main() {
         graindelay::process(state,buffer,l,r,p);
         if(block>1900) for(u32 i=0;i<64;++i) require(std::abs(l[i])<128&&std::abs(r[i])<128,"maximum feedback must decay");
     }
+    // Exact neutral delay for impulses stored at the last and first history
+    // frames, so the reads cross the end of the ring.
+    for(u32 at=65535;at<=65536;++at) {
+        graindelay::initialize(state);
+        first=0;
+        for(u32 block=0;block<1060;++block) {
+            for(u32 i=0;i<64;++i) { l[i]=block*64+i==at?1<<28:0; r[i]=0; }
+            graindelay::process(state,buffer,l,r,p);
+            for(u32 i=0;i<64;++i) if(l[i]&&!first) first=block*64+i;
+        }
+        require(first==at+884,"neutral delay must stay exact across the history wrap");
+    }
+    // Every pitch (whole-frame and interpolated reads) through the history's
+    // end: constant input must give a steady wet level with no hole or click.
+    p[3]=0; p[5]=p[6]=0; p[1]=0x3fffffff; p[2]=0x7fffffff;
+    for(u32 setting=0;setting<5;++setting) {
+        graindelay::initialize(state);
+        p[4]=static_cast<i32>((static_cast<i64>(2*setting+1)*0x7fffffff)/10);
+        p[0]=setting&1?0x7fffffff:0x1fffffff;
+        i32 previous=0;
+        for(u32 block=0;block<2300;++block) {
+            for(u32 i=0;i<64;++i) { l[i]=1<<27; r[i]=-(1<<26); }
+            graindelay::process(state,buffer,l,r,p);
+            if(block>1000) for(u32 i=0;i<64;++i) {
+                require(l[i]>60000000&&l[i]<70000000,"every pitch must settle to a steady wet level through history wrap");
+                require(std::abs(l[i]+2*r[i])<64,"every pitch must keep stereo balance");
+                require(!previous||std::abs(l[i]-previous)<200000,"every pitch must be click-free through history wrap");
+                previous=l[i];
+            }
+        }
+    }
     for(u32 setting=0;setting<5;++setting) {
         graindelay::initialize(state);
         p[4]=static_cast<i32>((static_cast<i64>(2*setting+1)*0x7fffffff)/10);
